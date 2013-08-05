@@ -13,11 +13,8 @@ db = Redis.new
 
 key = "jai"
 series = %w|sa sb sc|
-entries = 200
+entries = SPEED_LOAD ? 200 : 60000
 
-deleted = db.zremrangebyscore(key,0,Time.now.to_i - 3600)
-puts "#{deleted} records removed"
-sleep 3
 i = 0
 x = 0
 time_spread = SPEED_LOAD ? 300 : 1
@@ -28,9 +25,15 @@ while x < entries
   puts "Adding #{now} : #{data.to_json}"
   db.zadd(key,now,data.to_json)
   i += 1
-  sleep 1 unless SPEED_LOAD  
+  unless SPEED_LOAD
+    puts "This loop will continue forever, ctrl-c to exit"
+    deleted = db.zremrangebyscore(key,0,Time.now.to_i - 300)
+    puts "#{deleted} records removed"
+    sleep 1
+  end 
 end
 
-sleep 120
+puts "ctrl-c to prevent db deletion"
+sleep 60
 
 db.del key
