@@ -45,9 +45,12 @@ get "/db/:key" do |key|
 end
 
 post "/db/:key/:series/:value" do |key,series,value|
+  max_age = 60*60 #60 minutes
   o = [series,value]
   @@db.zadd(key,Time.now.to_i,o.to_json)
   puts "Added #{o.to_json}"
+  deleted = @@db.zremrangebyscore(key,0,Time.now.to_i - max_age)
+  puts "#{deleted} records removed"
 end
 
 get "/dash" do
