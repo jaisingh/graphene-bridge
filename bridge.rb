@@ -8,7 +8,7 @@ require 'pp'
 
 
 set :logging, :true
-set :public_folder, File.dirname(__FILE__) + '/graphene'
+
 @@db = Redis.new
 
 # Data format:
